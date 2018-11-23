@@ -22,7 +22,7 @@ __all__ = ["Awaitable", "Coroutine",
 
 # This module has been renamed from collections.abc to _collections_abc to
 # speed up interpreter startup. Some of the types such as MutableMapping are
-# required early but collections module imports a lot of other modules.
+# required early but collections module imports a lot of other classes.
 # See issue #19218
 __name__ = "collections.abc"
 

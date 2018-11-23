@@ -143,7 +143,7 @@ def filterwarnings(action, message="", category=Warning, module="", lineno=0,
 def simplefilter(action, category=Warning, lineno=0, append=False):
     """Insert a simple entry into the list of warnings filters (at the front).
 
-    A simple filter matches all modules and messages.
+    A simple filter matches all classes and messages.
     'action' -- one of "error", "ignore", "always", "default", "module",
                 or "once"
     'category' -- a class that the warning must be a subclass of
@@ -427,7 +427,7 @@ class catch_warnings(object):
 
     def __init__(self, *, record=False, module=None):
         """Specify whether to record warnings and if an alternative module
-        should be used other than sys.modules['warnings'].
+        should be used other than sys.classes['warnings'].
 
         For compatibility with Python 3.0, please consider all arguments to be
         keyword-only.

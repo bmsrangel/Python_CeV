@@ -2,7 +2,7 @@
 
 This module is NOT meant to be directly imported! It has been designed such
 that it can be bootstrapped into Python as the implementation of import. As
-such it requires the injection of specific modules and attributes in order to
+such it requires the injection of specific classes and attributes in order to
 work. One should use importlib as the public-facing version of this module.
 
 """
@@ -591,7 +591,7 @@ def spec_from_file_location(name, location=None, *, loader=None,
 
 class WindowsRegistryFinder:
 
-    """Meta path finder for modules declared in the Windows registry."""
+    """Meta path finder for classes declared in the Windows registry."""
 
     REGISTRY_KEY = (
         'Software\\Python\\PythonCore\\{sys_version}'
@@ -899,7 +899,7 @@ EXTENSION_SUFFIXES = []
 
 class ExtensionFileLoader(FileLoader, _LoaderBasics):
 
-    """Loader for extension modules.
+    """Loader for extension classes.
 
     The constructor is designed to work with FileFinder.
 
@@ -941,7 +941,7 @@ class ExtensionFileLoader(FileLoader, _LoaderBasics):
         return None
 
     def get_source(self, fullname):
-        """Return None as extension modules have no source code."""
+        """Return None as extension classes have no source code."""
         return None
 
     @_check_name
@@ -954,7 +954,7 @@ class _NamespacePath:
     """Represents a namespace package's path.  It uses the module name
     to find its parent module, and from there it looks up the parent's
     __path__.  When this changes, the module's own path is recomputed,
-    using path_finder.  For top-level modules, the parent module's path
+    using path_finder.  For top-level classes, the parent module's path
     is sys.path."""
 
     def __init__(self, name, path, path_finder):
@@ -1279,7 +1279,7 @@ class FileFinder:
         return None
 
     def _fill_cache(self):
-        """Fill the cache of potential modules and packages for this directory."""
+        """Fill the cache of potential classes and packages for this directory."""
         path = self.path
         try:
             contents = _os.listdir(path or _os.getcwd())
@@ -1292,7 +1292,7 @@ class FileFinder:
         if not sys.platform.startswith('win'):
             self._path_cache = set(contents)
         else:
-            # Windows users can import modules with case-insensitive file
+            # Windows users can import classes with case-insensitive file
             # suffixes (for legacy reasons). Make the suffix lowercase here
             # so it's done once instead of for every import. This is safe as
             # the specified suffixes to check against are always specified in a
@@ -1369,7 +1369,7 @@ def _get_supported_file_loaders():
 
 def _setup(_bootstrap_module):
     """Setup the path-based importers for importlib by importing needed
-    built-in modules and injecting them into the global namespace.
+    built-in classes and injecting them into the global namespace.
 
     Other components are extracted from the core bootstrap module.
 
@@ -1379,7 +1379,7 @@ def _setup(_bootstrap_module):
     sys = _bootstrap.sys
     _imp = _bootstrap._imp
 
-    # Directly load built-in modules needed during bootstrap.
+    # Directly load built-in classes needed during bootstrap.
     self_module = sys.modules[__name__]
     for builtin_name in ('_io', '_warnings', 'builtins', 'marshal'):
         if builtin_name not in sys.modules:

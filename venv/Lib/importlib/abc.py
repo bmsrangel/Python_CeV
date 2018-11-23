@@ -140,7 +140,7 @@ class Loader(metaclass=abc.ABCMeta):
     def load_module(self, fullname):
         """Return the loaded module.
 
-        The module must be added to sys.modules and have import-related
+        The module must be added to sys.classes and have import-related
         attributes set properly.  The fullname is a str.
 
         ImportError is raised on failure.
@@ -186,7 +186,7 @@ class ResourceLoader(Loader):
 class InspectLoader(Loader):
 
     """Abstract base class for loaders which support inspection about the
-    modules they can load.
+    classes they can load.
 
     This ABC represents one of the optional protocols specified by PEP 302.
 
@@ -239,7 +239,7 @@ _register(InspectLoader, machinery.BuiltinImporter, machinery.FrozenImporter)
 class ExecutionLoader(InspectLoader):
 
     """Abstract base class for loaders that wish to support the execution of
-    modules as scripts.
+    classes as scripts.
 
     This ABC represents one of the optional protocols specified in PEP 302.
 

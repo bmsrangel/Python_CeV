@@ -19,6 +19,5 @@ def somaLista(lst):
     print(f'Somando os valores pares de {lst}, temos {soma}')
 
 
-lista = []
 lista = sorteia()
 somaLista(lista)

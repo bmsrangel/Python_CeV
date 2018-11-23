@@ -3,10 +3,10 @@ __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
 
 # Bootstrap help #####################################################
 
-# Until bootstrapping is complete, DO NOT import any modules that attempt
+# Until bootstrapping is complete, DO NOT import any classes that attempt
 # to import importlib._bootstrap (directly or indirectly). Since this
-# partially initialised package would be present in sys.modules, those
-# modules would get an uninitialised copy of the source version, instead
+# partially initialised package would be present in sys.classes, those
+# classes would get an uninitialised copy of the source version, instead
 # of a fully initialised version (either the frozen one or the one
 # initialised below if the frozen one is not available).
 import _imp  # Just the builtin component, NOT the full Python module
@@ -143,7 +143,7 @@ def reload(module):
         name = module.__name__
 
     if sys.modules.get(name) is not module:
-        msg = "module {} not in sys.modules"
+        msg = "module {} not in sys.classes"
         raise ImportError(msg.format(name), name=name)
     if name in _RELOADING:
         return _RELOADING[name]
@@ -154,7 +154,7 @@ def reload(module):
             try:
                 parent = sys.modules[parent_name]
             except KeyError:
-                msg = "parent {!r} not in sys.modules"
+                msg = "parent {!r} not in sys.classes"
                 raise ImportError(msg.format(parent_name),
                                   name=parent_name) from None
             else:
@@ -164,7 +164,7 @@ def reload(module):
         target = module
         spec = module.__spec__ = _bootstrap._find_spec(name, pkgpath, target)
         _bootstrap._exec(spec, module)
-        # The module may have replaced itself in sys.modules!
+        # The module may have replaced itself in sys.classes!
         return sys.modules[name]
     finally:
         try:

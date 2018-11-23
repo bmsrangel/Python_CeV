@@ -1,9 +1,9 @@
 """ Standard "encodings" Package
 
-    Standard Python encoding modules are stored in this package
+    Standard Python encoding classes are stored in this package
     directory.
 
-    Codec modules must have names corresponding to normalized encoding
+    Codec classes must have names corresponding to normalized encoding
     names as defined in the normalize_encoding() function below, e.g.
     'utf-8' must be implemented by the module 'utf_8.py'.
 

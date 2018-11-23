@@ -2,7 +2,7 @@
 
 This module is NOT meant to be directly imported! It has been designed such
 that it can be bootstrapped into Python as the implementation of import. As
-such it requires the injection of specific modules and attributes in order to
+such it requires the injection of specific classes and attributes in order to
 work. One should use importlib as the public-facing version of this module.
 
 """
@@ -251,7 +251,7 @@ def _requires_frozen(fxn):
 
 # Typically used by loader classes as a method replacement.
 def _load_module_shim(self, fullname):
-    """Load the specified module into sys.modules and return it.
+    """Load the specified module into sys.classes and return it.
 
     This method is deprecated.  Use loader.exec_module instead.
 
@@ -309,7 +309,7 @@ class _installed_safely:
         self._spec = module.__spec__
 
     def __enter__(self):
-        # This must be done before putting the module in sys.modules
+        # This must be done before putting the module in sys.classes
         # (otherwise an optimization shortcut in import.c becomes
         # wrong)
         self._spec._initializing = True
@@ -341,7 +341,7 @@ class ModuleSpec:
     package the module is in.  The parent is derived from the name.
 
     `is_package` determines if the module is considered a package or
-    not.  On modules this is reflected by the `__path__` attribute.
+    not.  On classes this is reflected by the `__path__` attribute.
 
     `origin` is the specific location used by the loader from which to
     load the module, if that information is available.  When filename is
@@ -357,9 +357,9 @@ class ModuleSpec:
     search when importing submodules.  If set, is_package should be
     True--and False otherwise.
 
-    Packages are simply modules that (may) have submodules.  If a spec
+    Packages are simply classes that (may) have submodules.  If a spec
     has a non-None value in `submodule_search_locations`, the import
-    system will consider modules loaded from the spec as packages.
+    system will consider classes loaded from the spec as packages.
 
     Only finders (see importlib.abc.MetaPathFinder and
     importlib.abc.PathEntryFinder) should modify ModuleSpec instances.
@@ -600,7 +600,7 @@ def _exec(spec, module):
     name = spec.name
     with _ModuleLockManager(name):
         if sys.modules.get(name) is not module:
-            msg = 'module {!r} not in sys.modules'.format(name)
+            msg = 'module {!r} not in sys.classes'.format(name)
             raise ImportError(msg, name=name)
         if spec.loader is None:
             if spec.submodule_search_locations is None:
@@ -624,7 +624,7 @@ def _load_backward_compatible(spec):
     # have exec_module() implemented, we can add a deprecation
     # warning here.
     spec.loader.load_module(spec.name)
-    # The module must be in sys.modules at this point!
+    # The module must be in sys.classes at this point!
     module = sys.modules[spec.name]
     if getattr(module, '__loader__', None) is None:
         try:
@@ -665,7 +665,7 @@ def _load_unlocked(spec):
             spec.loader.exec_module(module)
 
     # We don't ensure that the import-related module attributes get
-    # set in the sys.modules replacement case.  Such modules are on
+    # set in the sys.classes replacement case.  Such classes are on
     # their own.
     return sys.modules[spec.name]
 
@@ -676,7 +676,7 @@ def _load(spec):
 
     The module is not added to its parent.
 
-    If a module is already in sys.modules, that existing module gets
+    If a module is already in sys.classes, that existing module gets
     clobbered.
 
     """
@@ -688,7 +688,7 @@ def _load(spec):
 
 class BuiltinImporter:
 
-    """Meta path import for built-in modules.
+    """Meta path import for built-in classes.
 
     All methods are either class or static methods to avoid the need to
     instantiate the class.
@@ -741,19 +741,19 @@ class BuiltinImporter:
     @classmethod
     @_requires_builtin
     def get_code(cls, fullname):
-        """Return None as built-in modules do not have code objects."""
+        """Return None as built-in classes do not have code objects."""
         return None
 
     @classmethod
     @_requires_builtin
     def get_source(cls, fullname):
-        """Return None as built-in modules do not have source code."""
+        """Return None as built-in classes do not have source code."""
         return None
 
     @classmethod
     @_requires_builtin
     def is_package(cls, fullname):
-        """Return False as built-in modules are never packages."""
+        """Return False as built-in classes are never packages."""
         return False
 
     load_module = classmethod(_load_module_shim)
@@ -761,7 +761,7 @@ class BuiltinImporter:
 
 class FrozenImporter:
 
-    """Meta path import for frozen modules.
+    """Meta path import for frozen classes.
 
     All methods are either class or static methods to avoid the need to
     instantiate the class.
@@ -824,7 +824,7 @@ class FrozenImporter:
     @classmethod
     @_requires_frozen
     def get_source(cls, fullname):
-        """Return None as frozen modules do not have source code."""
+        """Return None as frozen classes do not have source code."""
         return None
 
     @classmethod
@@ -878,9 +878,9 @@ def _find_spec(name, path, target=None):
     if not meta_path:
         _warnings.warn('sys.meta_path is empty', ImportWarning)
 
-    # We check sys.modules here for the reload case.  While a passed-in
+    # We check sys.classes here for the reload case.  While a passed-in
     # target will usually indicate a reload there is no guarantee, whereas
-    # sys.modules provides one.
+    # sys.classes provides one.
     is_reload = name in sys.modules
     for finder in meta_path:
         with _ImportLockContext():
@@ -972,7 +972,7 @@ def _find_and_load(name, import_):
 
     if module is None:
         message = ('import of {} halted; '
-                   'None in sys.modules'.format(name))
+                   'None in sys.classes'.format(name))
         raise ModuleNotFoundError(message, name=name)
 
     _lock_unlock_module(name)
@@ -1017,7 +1017,7 @@ def _handle_fromlist(module, fromlist, import_):
                     _call_with_frames_removed(import_, from_name)
                 except ModuleNotFoundError as exc:
                     # Backwards-compatibility dictates we ignore failed
-                    # imports triggered by fromlist for modules that don't
+                    # imports triggered by fromlist for classes that don't
                     # exist.
                     if exc.name == from_name:
                         continue
@@ -1095,18 +1095,18 @@ def _builtin_from_name(name):
 
 
 def _setup(sys_module, _imp_module):
-    """Setup importlib by importing needed built-in modules and injecting them
+    """Setup importlib by importing needed built-in classes and injecting them
     into the global namespace.
 
-    As sys is needed for sys.modules access and _imp is needed to load built-in
-    modules, those two modules must be explicitly passed in.
+    As sys is needed for sys.classes access and _imp is needed to load built-in
+    classes, those two classes must be explicitly passed in.
 
     """
     global _imp, sys
     _imp = _imp_module
     sys = sys_module
 
-    # Set up the spec for existing builtin/frozen modules.
+    # Set up the spec for existing builtin/frozen classes.
     module_type = type(sys)
     for name, module in sys.modules.items():
         if isinstance(module, module_type):
@@ -1119,7 +1119,7 @@ def _setup(sys_module, _imp_module):
             spec = _spec_from_module(module, loader)
             _init_module_attrs(spec, module)
 
-    # Directly load built-in modules needed during bootstrap.
+    # Directly load built-in classes needed during bootstrap.
     self_module = sys.modules[__name__]
     for builtin_name in ('_warnings',):
         if builtin_name not in sys.modules:

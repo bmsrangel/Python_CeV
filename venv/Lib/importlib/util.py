@@ -35,10 +35,10 @@ def resolve_name(name, package):
 def _find_spec_from_path(name, path=None):
     """Return the spec for the specified module.
 
-    First, sys.modules is checked to see if the module was already imported. If
-    so, then sys.modules[name].__spec__ is returned. If that happens to be
+    First, sys.classes is checked to see if the module was already imported. If
+    so, then sys.classes[name].__spec__ is returned. If that happens to be
     set to None, then ValueError is raised. If the module is not in
-    sys.modules, then sys.meta_path is searched for a suitable spec with the
+    sys.classes, then sys.meta_path is searched for a suitable spec with the
     value of 'path' given to the finders. None is returned if no spec could
     be found.
 
@@ -66,10 +66,10 @@ def _find_spec_from_path(name, path=None):
 def find_spec(name, package=None):
     """Return the spec for the specified module.
 
-    First, sys.modules is checked to see if the module was already imported. If
-    so, then sys.modules[name].__spec__ is returned. If that happens to be
+    First, sys.classes is checked to see if the module was already imported. If
+    so, then sys.classes[name].__spec__ is returned. If that happens to be
     set to None, then ValueError is raised. If the module is not in
-    sys.modules, then sys.meta_path is searched for a suitable spec with the
+    sys.classes, then sys.meta_path is searched for a suitable spec with the
     value of 'path' given to the finders. None is returned if no spec could
     be found.
 
@@ -113,7 +113,7 @@ def _module_to_load(name):
         # implicitly imports 'locale' and would otherwise trigger an
         # infinite loop.
         module = type(sys)(name)
-        # This must be done before putting the module in sys.modules
+        # This must be done before putting the module in sys.classes
         # (otherwise an optimization shortcut in import.c becomes wrong)
         module.__initializing__ = True
         sys.modules[name] = module
@@ -169,7 +169,7 @@ def module_for_loader(fxn):
     """Decorator to handle selecting the proper module for loaders.
 
     The decorated function is passed the module to use instead of the module
-    name. The module passed in to the function is either from sys.modules if
+    name. The module passed in to the function is either from sys.classes if
     it already exists or is a new module. If the module is new, then __name__
     is set the first argument to the method, __loader__ is set to self, and
     __package__ is set accordingly (if self.is_package() is defined) will be set
@@ -177,7 +177,7 @@ def module_for_loader(fxn):
     not work for the module it will be set post-load).
 
     If an exception is raised and the decorator created the module it is
-    subsequently removed from sys.modules.
+    subsequently removed from sys.classes.
 
     The decorator assumes that the decorated function takes the module name as
     the second argument.
@@ -215,7 +215,7 @@ class _LazyModule(types.ModuleType):
         # Stop triggering this method.
         self.__class__ = types.ModuleType
         # Get the original name to make sure no object substitution occurred
-        # in sys.modules.
+        # in sys.classes.
         original_name = self.__spec__.name
         # Figure out exactly what attributes were mutated between the creation
         # of the module and now.
@@ -232,11 +232,11 @@ class _LazyModule(types.ModuleType):
                 attrs_updated[key] = value
         self.__spec__.loader.exec_module(self)
         # If exec_module() was used directly there is no guarantee the module
-        # object was put into sys.modules.
+        # object was put into sys.classes.
         if original_name in sys.modules:
             if id(self) != id(sys.modules[original_name]):
                 raise ValueError(f"module object for {original_name!r} "
-                                  "substituted in sys.modules during a lazy "
+                                  "substituted in sys.classes during a lazy "
                                   "load")
         # Update after loading since that's what would happen in an eager
         # loading situation.

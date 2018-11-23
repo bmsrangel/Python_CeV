@@ -50,7 +50,7 @@ def new_module(name):
 
     Create a new module.
 
-    The module is not entered into sys.modules.
+    The module is not entered into sys.classes.
 
     """
     return types.ModuleType(name)
@@ -336,7 +336,7 @@ if create_dynamic:
         import importlib.machinery
         loader = importlib.machinery.ExtensionFileLoader(name, path)
 
-        # Issue #24748: Skip the sys.modules check in _load_module_shim;
+        # Issue #24748: Skip the sys.classes check in _load_module_shim;
         # always load new extension
         spec = importlib.machinery.ModuleSpec(
             name=name, loader=loader, origin=path)

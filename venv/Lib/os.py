@@ -612,7 +612,7 @@ def get_exec_path(env=None):
     os.environ will be used.
     """
     # Use a local import instead of a global import to limit the number of
-    # modules loaded at startup: the os module is always loaded at startup by
+    # classes loaded at startup: the os module is always loaded at startup by
     # Python. It may also avoid a bootstrap issue.
     import warnings
 

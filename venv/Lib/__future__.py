@@ -26,7 +26,7 @@ MandatoryRelease predicts the release in which the feature will become part
 of the language.
 
 Else MandatoryRelease records when the feature became part of the language;
-in releases at or after that, modules no longer need
+in releases at or after that, classes no longer need
 
     from __future__ import FeatureName
 
